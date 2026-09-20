@@ -1,0 +1,151 @@
+class Student:
+    """Base class representing a general student."""
+    
+    def __init__(self, student_id, name, age, course):
+        # Initializing instance attributes
+        self.student_id = student_id
+        self.name = name
+        self.age = age
+        self.course = course
+
+    def display_details(self):
+        """Displays standard student details."""
+        print(f"ID: {self.student_id} | Name: {self.name} | Age: {self.age} | Course: {self.course}")
+
+
+# OOP Requirement: Implementation of Inheritance
+class GraduateStudent(Student):
+    """Child class representing a specialized Graduate Student."""
+    
+    def __init__(self, student_id, name, age, course, research_topic):
+        # Call the parent class constructor to initialize common attributes
+        super().__init__(student_id, name, age, course)
+        self.research_topic = research_topic
+
+    # OOP Requirement: Implementation of Method Overriding
+    def display_details(self):
+        """Overrides the base class method to include research topic details."""
+        print(f"ID: {self.student_id} | Name: {self.name} (Grad) | Age: {self.age} | Course: {self.course} | Research: {self.research_topic}")
+
+
+class StudentManagementSystem:
+    """Class to manage multiple student records and system operations."""
+    
+    def __init__(self):
+        # Dictionary data structure to store student objects {student_id: Student_Object}
+        self.students = {}
+
+    def add_student(self):
+        """Method to add a new student or graduate student to the system."""
+        print("\n--- Add Student ---")
+        student_id = input("Enter Student ID: ").strip()
+        
+        # Check if student ID already exists to prevent duplication
+        if student_id in self.students:
+            print("Error: A student with this ID already exists!\n")
+            return
+
+        name = input("Enter Name: ").strip()
+        
+        # Input validation for age
+        try:
+            age = int(input("Enter Age: "))
+        except ValueError:
+            print("Error: Age must be a valid number.\n")
+            return
+            
+        course = input("Enter Course/Program: ").strip()
+        is_grad = input("Is this a Graduate Student? (y/n): ").strip().lower()
+
+        if is_grad == 'y':
+            research_topic = input("Enter Research Topic: ").strip()
+            # Instantiate a child class object
+            new_student = GraduateStudent(student_id, name, age, course, research_topic)
+        else:
+            # Instantiate a base class object
+            new_student = Student(student_id, name, age, course)
+
+        # Store the instantiated object in our dictionary data structure
+        self.students[student_id] = new_student
+        print(f"Success: Student '{name}' added successfully!\n")
+
+    def update_student(self):
+        """Method to search and update an existing student's details."""
+        print("\n--- Update Student ---")
+        student_id = input("Enter Student ID to update: ").strip()
+
+        if student_id not in self.students:
+            print("Error: Student ID not found.\n")
+            return
+
+        student = self.students[student_id]
+        print(f"\nCurrently updating details for: {student.name}")
+        
+        # Gather new details (Leave blank to keep existing information unchanged)
+        new_name = input(f"Enter new name (Leave blank to keep '{student.name}'): ").strip()
+        new_age_str = input(f"Enter new age (Leave blank to keep '{student.age}'): ").strip()
+        new_course = input(f"Enter new course (Leave blank to keep '{student.course}'): ").strip()
+
+        # Update base attributes if new values were provided
+        if new_name:
+            student.name = new_name
+            
+        if new_age_str:
+            try:
+                student.age = int(new_age_str)
+            except ValueError:
+                print("Warning: Invalid age format. Age not updated.")
+                
+        if new_course:
+            student.course = new_course
+
+        # Check instance type at runtime to handle specialized child attributes
+        if isinstance(student, GraduateStudent):
+            new_research = input(f"Enter new research topic (Leave blank to keep '{student.research_topic}'): ").strip()
+            if new_research:
+                student.research_topic = new_research
+
+        print("Success: Student information updated successfully!\n")
+
+    def view_students(self):
+        """Method to view all registered student records."""
+        print("\n--- Registered Students ---")
+        if not self.students:
+            print("No students registered in the system yet.\n")
+            return
+
+        for student in self.students.values():
+            # Polymorphism in action: calls the overridden method automatically depending on the object type
+            student.display_details()
+        print()
+
+
+def main():
+    """Main function to initialize the management app loop."""
+    # Instantiate the core management system object
+    sms = StudentManagementSystem()
+
+    while True:
+        print("=== Student Management System ===")
+        print("1. Add Student")
+        print("2. Update Student")
+        print("3. View Students")
+        print("4. Exit")
+        
+        choice = input("Choose an option (1-4): ").strip()
+        
+        if choice == '1':
+            sms.add_student()
+        elif choice == '2':
+            sms.update_student()
+        elif choice == '3':
+            sms.view_students()
+        elif choice == '4':
+            print("Exiting System. Goodbye!")
+            break
+        else:
+            print("\nInvalid selection! Please enter a number between 1 and 4.\n")
+
+
+if __name__ == "__main__":
+    main()
